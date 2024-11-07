@@ -5,3 +5,5 @@ Give precise answers.
 {data}
 
 Question: When is the best time to visit location?
+
+Replay should contain only a timestamp.
