@@ -2,6 +2,7 @@ package com.bosch.hackathon.controllers;
 
 import com.bosch.hackathon.models.QueueInfoDto;
 import com.bosch.hackathon.services.QueueService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +16,7 @@ public class QueueController {
     }
 
 
+    @CrossOrigin("http://localhost:3000")
     @GetMapping("/queue")
     public QueueInfoDto getCurrentWaitingTime() {
         return queueService.getCurrentWaitingTime();

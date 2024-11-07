@@ -1,6 +1,8 @@
 package com.bosch.hackathon.broker;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -43,7 +45,7 @@ public class BrokerClient {
     public MessageProducer inbound() {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter("testClient", mqttClientFactory(),
-                        "camera_2/#");
+                        "camera_2/nnvif-ej.RuleEngine.CountAggregation.OccupancyCounter.Occupancy 1");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
@@ -59,11 +61,21 @@ public class BrokerClient {
         return message -> {
 
             try {
-                System.out.println(message.getPayload());
+                String payload = message.getPayload().toString();
+                // Parse the payload to extract UtcTime and Data.Count
+                JSONObject jsonObject = new JSONObject(payload);
+                String utcTime = jsonObject.getString("UtcTime");
+                String count = jsonObject.getJSONObject("Data").getString("Count");
+                // Create a new JSON object with the required fields
+                JSONObject newJsonObject = new JSONObject();
+                newJsonObject.put("UtcTime", utcTime);
+                newJsonObject.put("Data", new JSONObject().put("Count", count));
+                // Write the new JSON object to the file
                 Files.write(Paths.get("src/main/resources/result.txt"),
-                        ("," + System.lineSeparator() + message.getPayload()).getBytes(),
+                        ("," + System.lineSeparator() + newJsonObject.toString()).getBytes(),
                         StandardOpenOption.APPEND);
-            } catch (IOException e) {
+
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
         };
