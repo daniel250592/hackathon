@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PeopleCountRepository extends JpaRepository<PeopleCount, Long> {
+
+
+    PeopleCount findTopByOrderByTimeDesc();
 }

@@ -49,7 +49,7 @@ public class OllamaAiClient {
 
 
         var fiveMinuteIntervals = repository.findAll().stream()
-                .collect(Collectors.groupingBy(pc -> pc.getTime().truncatedTo(ChronoUnit.MINUTES).withMinute(pc.getTime().getMinute() / 5 * 5)))
+                .collect(Collectors.groupingBy(pc -> pc.getTime().truncatedTo(ChronoUnit.MINUTES).withMinute(pc.getTime().getMinute() / 1 * 1)))
                 .entrySet().stream()
                 .map(entry -> {
                     double averageCount = entry.getValue().stream().mapToInt(PeopleCount::getPeople).average().orElse(0);
