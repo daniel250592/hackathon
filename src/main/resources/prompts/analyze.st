@@ -1,10 +1,9 @@
-Agregate {data} in 5 min time intervals.
-Use aggregated data and only this data to say when is the best time to visit location during the day.
-Round timestamp to minutes.
+Based on the provided {data} answer the {question} question.
 
-The best time to visit location is the time when Count is the lowest.
-Give precise answers.
+Context:
+This is data on how many people are currently standing in line at the cantina.
+The best time to get to the location is when number of people is at its lowest.
 
-Question: When is the best time to visit location?
+Provide very precise answer to the question - only time and date is required.
 
-Replay should contain only a timestamp.
+If question is not related to date or time, tell that question is not supported.

@@ -1,5 +1,7 @@
 package com.bosch.hackathon.broker;
 
+import com.bosch.hackathon.models.PeopleCount;
+import com.bosch.hackathon.repository.PeopleCountRepository;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,13 +17,18 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class BrokerClient {
+
+    private final PeopleCountRepository peopleCountRepository;
+
+    public BrokerClient(PeopleCountRepository peopleCountRepository) {
+        this.peopleCountRepository = peopleCountRepository;
+    }
 
     @Bean
     public MessageChannel mqttInputChannel() {
@@ -68,16 +75,28 @@ public class BrokerClient {
                 String count = jsonObject.getJSONObject("Data").getString("Count");
                 // Create a new JSON object with the required fields
                 JSONObject newJsonObject = new JSONObject();
-                newJsonObject.put("UtcTime", utcTime);
-                newJsonObject.put("Data", new JSONObject().put("Count", count));
-                // Write the new JSON object to the file
-                Files.write(Paths.get("src/main/resources/result.txt"),
-                        ("," + System.lineSeparator() + newJsonObject.toString()).getBytes(),
-                        StandardOpenOption.APPEND);
+                newJsonObject.put("time", utcTime);
+                newJsonObject.put("people", count);
 
-            } catch (IOException | JSONException e) {
+                peopleCountRepository.save(new PeopleCount(Integer.valueOf(count), convertToLocalDateTime(utcTime)));
+
+//                // Write the new JSON object to the file
+//                Files.write(Paths.get("src/main/resources/result.txt"),
+//                        ("," + System.lineSeparator() + newJsonObject.toString()).getBytes(),
+//                        StandardOpenOption.APPEND);
+
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         };
     }
+
+    public static LocalDateTime convertToLocalDateTime(String utcString) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+
+        return LocalDateTime.parse(utcString, formatter.withZone(ZoneOffset.UTC));
+
+    }
+
 }
