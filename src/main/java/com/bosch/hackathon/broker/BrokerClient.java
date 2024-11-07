@@ -43,10 +43,10 @@ public class BrokerClient {
     public MessageProducer inbound() {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter("testClient", mqttClientFactory(),
-                        "topic1");
+                        "camera_2/#");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
-        adapter.setQos(2);
+        adapter.setQos(1);
         adapter.setAutoStartup(true);
         adapter.setOutputChannel(mqttInputChannel());
         return adapter;
@@ -59,6 +59,7 @@ public class BrokerClient {
         return message -> {
 
             try {
+                System.out.println(message.getPayload());
                 Files.write(Paths.get("src/main/resources/result.txt"),
                         ("," + System.lineSeparator() + message.getPayload()).getBytes(),
                         StandardOpenOption.APPEND);
